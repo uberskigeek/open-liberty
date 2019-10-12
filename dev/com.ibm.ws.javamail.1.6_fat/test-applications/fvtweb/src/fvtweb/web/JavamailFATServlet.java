@@ -30,11 +30,13 @@ import fvtweb.ejb.JavamailTestLocal;
                        storeProtocol = "jm2StoreProtocol",
                        transportProtocol = "jm2TransportProtocol",
                        user = "jm2test",
+                       properties = { "test=jm2Def_MailSession" },
                        password = "testJm2test")
 @MailSessionDefinition(name = "javamail/mergeDef",
                        user = "mergeAnnotationUser",
                        from = "mergeAnnotationFrom",
-                       password = "mergePass")
+                       password = "mergePass",
+                       properties = { "test=mergeDef_MailSession" })
 @WebServlet("/*")
 public class JavamailFATServlet extends FATServlet {
 
@@ -98,6 +100,12 @@ public class JavamailFATServlet extends FATServlet {
             String tpValue = jm2.getProperty("mail.transport.protocol");
             if (!("jm2TransportProtocol").equals(tpValue)) {
                 throw new Exception("Did not find the transport.protocol for mail session jm2 defined as an annotation");
+            }
+
+            //Vaidate the property "test" returns the value added with the annotation
+            String testValue = jm2.getProperty("test");
+            if (testValue == null || !testValue.equals("jm2Def_MailSession")) {
+                throw new Exception("Did not find the test property for mail session mergeMS defined as an annotation, instead found: " + testValue);
             }
 
             return;
@@ -165,6 +173,12 @@ public class JavamailFATServlet extends FATServlet {
             String hostValue = mergeMS.getProperty("mail.host");
             if (!("mergeHost").equals(hostValue)) {
                 throw new Exception("Did not find the host for mail session mergeMS defined in web.xml, instead found: " + hostValue);
+            }
+
+            //Vaidate the property "test" returns the value added with the annotation
+            String testValue = mergeMS.getProperty("test");
+            if (testValue == null || !testValue.equals("mergeDef_MailSession")) {
+                throw new Exception("Did not find the test property for mail session mergeMS defined as an annotation, instead found: " + testValue);
             }
 
             return;

@@ -48,6 +48,7 @@ public class MailSessionDefinitionInjectionBinding extends InjectionBinding<Mail
     private static final String KEY_TRANSPORT_PROTOCOL_CLASS_NAME = "transportProtocolClassName";
     private static final String KEY_HOST = "host";
     private static final String KEY_FROM = "from";
+    private static final String KEY_PROPERTY = "property";
 
     private String description;
     private boolean XMLDescription;
@@ -91,7 +92,7 @@ public class MailSessionDefinitionInjectionBinding extends InjectionBinding<Mail
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.ibm.wsspi.injectionengine.InjectionBinding#merge(java.lang.annotation.Annotation, java.lang.Class, java.lang.reflect.Member)
      */
     @Override
@@ -100,8 +101,7 @@ public class MailSessionDefinitionInjectionBinding extends InjectionBinding<Mail
         if (isTraceOn && tc.isEntryEnabled())
             Tr.entry(tc, "merge: name=" + getJndiName() + ", " + super.toStringSecure(annotation));
 
-        if (member != null)
-        {
+        if (member != null) {
             // MailSessionDefinition is a class-level annotation only.
             throw new IllegalArgumentException(member.toString());
         }
@@ -112,7 +112,9 @@ public class MailSessionDefinitionInjectionBinding extends InjectionBinding<Mail
             password = (SerializableProtectedString) mergeAnnotationValue(password.getChars(), XMLPassword, annotation.password().toCharArray(), KEY_PASSWORD, "");
         host = mergeAnnotationValue(host, XMLHost, annotation.host(), KEY_HOST, "");
         from = mergeAnnotationValue(from, XMLFrom, annotation.from(), KEY_FROM, "");
+
         properties = mergeAnnotationProperties(properties, XMLProperties, annotation.properties());
+
         storeProtocol = mergeAnnotationValue(storeProtocol, XMLStoreProtocol, annotation.storeProtocol(), KEY_STORE_PROTOCOL, "");
         storeProtocolClassName = mergeAnnotationValue(storeProtocolClassName, XMLStoreProtocolClassName, annotation.storeProtocol(), KEY_STORE_PROTOCOL_CLASS_NAME, "");
         transportProtocol = mergeAnnotationValue(transportProtocol, XMLTransportProtocol, annotation.transportProtocol(), KEY_TRANSPORT_PROTOCOL, "");
@@ -123,23 +125,24 @@ public class MailSessionDefinitionInjectionBinding extends InjectionBinding<Mail
             Tr.exit(tc, "merge");
     }
 
-    void resolve()
-                    throws InjectionException
-    {
+    void resolve() throws InjectionException {
         final boolean isTraceOn = TraceComponent.isAnyTracingEnabled();
         if (isTraceOn && tc.isEntryEnabled())
             Tr.entry(tc, "resolve");
 
         Map<String, Object> props = new HashMap<String, Object>();
 
-        if (properties != null)
-        {
-            for (Map.Entry<String, String> entry : properties.entrySet())
-            {
-                String key = entry.getKey();
+        if (properties != null) {
 
-                props.put(key, entry.getValue());
+            int i = 0;
+
+            for (Map.Entry<String, String> entry : properties.entrySet()) {
+                String key = entry.getKey();
+                props.put(KEY_PROPERTY + "." + i + ".name", key);
+                props.put(KEY_PROPERTY + "." + i + ".value", entry.getValue());
+                i++;
             }
+
         }
 
         // Insert all remaining attributes.
@@ -159,17 +162,14 @@ public class MailSessionDefinitionInjectionBinding extends InjectionBinding<Mail
             Tr.exit(tc, "resolve");
     }
 
-    void mergeXML(MailSession mailSession)
-                    throws InjectionConfigurationException
-    {
+    void mergeXML(MailSession mailSession) throws InjectionConfigurationException {
         final boolean isTraceOn = TraceComponent.isAnyTracingEnabled();
         if (isTraceOn && tc.isEntryEnabled())
             Tr.entry(tc, "mergeXML: name=" + getJndiName() + ", " + mailSession.toString());
 
         List<Description> descriptionList = mailSession.getDescriptions();
 
-        if (descriptionList != null)
-        {
+        if (descriptionList != null) {
             Iterator<Description> iter = descriptionList.iterator();
             StringBuilder descSB = new StringBuilder();
             while (iter.hasNext()) {
@@ -181,58 +181,50 @@ public class MailSessionDefinitionInjectionBinding extends InjectionBinding<Mail
         }
 
         String fromValue = mailSession.getFrom();
-        if (fromValue != null)
-        {
+        if (fromValue != null) {
             from = mergeXMLValue(from, fromValue, "from", KEY_FROM, null);
             XMLFrom = true;
         }
 
         String hostValue = mailSession.getHost();
-        if (hostValue != null)
-        {
+        if (hostValue != null) {
             host = mergeXMLValue(host, hostValue, "host", KEY_HOST, null);
             XMLHost = true;
         }
 
         String userValue = mailSession.getUser();
-        if (userValue != null)
-        {
+        if (userValue != null) {
             user = mergeXMLValue(user, userValue, "user", KEY_USER, null);
             XMLUser = true;
         }
 
         String passwordValue = mailSession.getPassword();
-        if (passwordValue != null && password != null)
-        {
+        if (passwordValue != null && password != null) {
             password = (SerializableProtectedString) mergeXMLValue(password.getChars(), passwordValue, "password", KEY_PASSWORD, null);
             XMLPassword = true;
         }
 
         String storeProtocolValue = mailSession.getStoreProtocol();
-        if (storeProtocolValue != null)
-        {
+        if (storeProtocolValue != null) {
             storeProtocol = mergeXMLValue(storeProtocol, storeProtocolValue, "store-protocol", KEY_STORE_PROTOCOL, null);
             XMLStoreProtocol = true;
         }
 
         String storeProtocolClassNameValue = mailSession.getStoreProtocolClassName();
-        if (storeProtocolClassNameValue != null)
-        {
+        if (storeProtocolClassNameValue != null) {
             storeProtocolClassName = mergeXMLValue(storeProtocolClassName, storeProtocolClassNameValue, "store-protocol-class-name",
                                                    KEY_STORE_PROTOCOL_CLASS_NAME, null);
             XMLStoreProtocolClassName = true;
         }
 
         String transportProtocolValue = mailSession.getTransportProtocol();
-        if (transportProtocolValue != null)
-        {
+        if (transportProtocolValue != null) {
             transportProtocol = mergeXMLValue(transportProtocol, transportProtocolValue, "transport-protocol", KEY_TRANSPORT_PROTOCOL, null);
             XMLTransportProtocol = true;
         }
 
         String transportProtocolClassNameValue = mailSession.getTransportProtocolClassName();
-        if (transportProtocolClassNameValue != null)
-        {
+        if (transportProtocolClassNameValue != null) {
             transportProtocolClassName = mergeXMLValue(transportProtocolClassName, transportProtocolClassNameValue, "transport-protocol-class-name",
                                                        KEY_TRANSPORT_PROTOCOL_CLASS_NAME, null);
             XMLTransportProtocolClassName = true;
@@ -246,9 +238,7 @@ public class MailSessionDefinitionInjectionBinding extends InjectionBinding<Mail
     }
 
     @Override
-    public void mergeSaved(InjectionBinding<MailSessionDefinition> injectionBinding)
-                    throws InjectionException
-    {
+    public void mergeSaved(InjectionBinding<MailSessionDefinition> injectionBinding) throws InjectionException {
         MailSessionDefinitionInjectionBinding mailSessionBinding = (MailSessionDefinitionInjectionBinding) injectionBinding;
 
         mergeSavedValue(description, mailSessionBinding.description, "description");
@@ -265,8 +255,7 @@ public class MailSessionDefinitionInjectionBinding extends InjectionBinding<Mail
     }
 
     @Override
-    public Class<?> getAnnotationType()
-    {
+    public Class<?> getAnnotationType() {
         return MailSessionDefinition.class;
     }
 
