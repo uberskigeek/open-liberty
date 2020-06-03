@@ -27,6 +27,7 @@ import org.eclipse.transformer.jakarta.JakartaTransformer;
 import com.ibm.websphere.simplicity.ShrinkHelper;
 import com.ibm.websphere.simplicity.log.Log;
 import com.ibm.ws.fat.util.SharedServer;
+import com.ibm.ws.jakarta.transformer.JakartaTransformer;
 
 import componenttest.custom.junit.runner.Mode.TestMode;
 import componenttest.custom.junit.runner.RepeatTestFilter;
@@ -53,6 +54,7 @@ public class JakartaEE9Action extends FeatureReplacementAction {
     // features, which is necessary for the FATs to run.
 
     static final String[] EE9_FEATURES_ARRAY = {
+<<<<<<< HEAD
                                                  "jakartaee-9.0",
                                                  "webProfile-9.0",
                                                  "jakartaeeClient-9.0",
@@ -96,8 +98,6 @@ public class JakartaEE9Action extends FeatureReplacementAction {
         removeFeatures(EE6FeatureReplacementAction.EE6_FEATURE_SET);
         removeFeatures(EE7FeatureReplacementAction.EE7_FEATURE_SET);
         removeFeatures(EE8FeatureReplacementAction.EE8_FEATURE_SET);
-        forceAddFeatures(false);
-        withID(ID);
     }
 
     @Override
