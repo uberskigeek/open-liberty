@@ -15,6 +15,9 @@ src: \
 	fat/src,\
 	test-applications/JavaMailClientApp.jar/src
 
+tested.features: \
+  jakartaeeClient-9.0 
+  
 fat.project: true
 
 -buildpath: \

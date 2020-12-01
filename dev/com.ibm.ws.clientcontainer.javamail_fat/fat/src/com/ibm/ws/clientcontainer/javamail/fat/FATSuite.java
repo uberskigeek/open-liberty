@@ -28,6 +28,7 @@ public class FATSuite {
     // First without any modifications, then again with all features upgraded to their EE8 equivalents.
     @ClassRule
     public static RepeatTests r = RepeatTests.withoutModification()
-                    .andWith(FeatureReplacementAction.EE8_FEATURES());
+                    .andWith(FeatureReplacementAction.EE8_FEATURES())
+                    .andWith(FeatureReplacementAction.EE9_FEATURES());
 
 }
